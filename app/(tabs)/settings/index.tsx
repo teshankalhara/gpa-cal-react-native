@@ -5,23 +5,24 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import {
-    ChevronRight,
-    Moon,
-    RotateCcw,
-    Scale,
-    Smartphone,
-    Sun,
-    Trash2,
-    Users
+  ChevronRight,
+  Code,
+  Moon,
+  RotateCcw,
+  Scale,
+  Smartphone,
+  Sun,
+  Trash2,
+  Users
 } from 'lucide-react-native';
 import React from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: typeof Sun }[] = [
@@ -34,6 +35,8 @@ export default function SettingsScreen() {
   const { colors, themeMode, setThemeMode } = useTheme();
   const { resetGradeScale, students } = useGPA();
   const router = useRouter();
+  const lastUpdateDate = "Feb 23, 2026";
+  const version="1.00"
 
   const totalYears = students.reduce((a, s) => a + s.years.length, 0);
   const totalSemesters = students.reduce(
@@ -165,10 +168,11 @@ export default function SettingsScreen() {
               <View>
                 <Text style={[styles.menuTitle, { color: colors.text }]}>Summary</Text>
                 <Text style={[styles.menuSub, { color: colors.textSecondary }]}>
-                  {students.length} student{students.length !== 1 ? 's' : ''},{' '}
-                  {totalYears} year{totalYears !== 1 ? 's' : ''},{' '}
-                  {totalSemesters} semester{totalSemesters !== 1 ? 's' : ''},{' '}
-                  {totalSubjects} subject{totalSubjects !== 1 ? 's' : ''}
+                  {/* {students.length} student{students.length !== 1 ? 's ' : ' '}|{' '}
+                  {totalYears} year{totalYears !== 1 ? 's ' : ' '}|{' '}
+                  {totalSemesters} semester{totalSemesters !== 1 ? 's ' : ' '}|{' '}
+                  {totalSubjects} subject{totalSubjects !== 1 ? 's ' : ''} */}
+                  {students.length} student{students.length !== 1 ? 's ' : ' '}
                 </Text>
               </View>
             </View>
@@ -191,9 +195,31 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        <Text style={[styles.footer, { color: colors.textTertiary }]}>
-          GPA Calculator v1.0
-        </Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>About</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={styles.menuItem}>
+            <View style={styles.menuLeft}>
+              <View style={[styles.menuIcon, { backgroundColor: colors.surfaceAlt }]}>
+                <Code size={18} color={colors.textSecondary} />
+              </View>
+              <View>
+                <Text style={[styles.menuTitle, { color: colors.text }]}>Developed By</Text>
+                <Text style={[styles.menuSub, { color: colors.textSecondary }]}>
+                  Teshan Kalhara | All rights reserved {new Date().getFullYear()}
+                </Text>
+
+                {/* Last Update */}
+                <Text style={[styles.menuSub, { color: colors.textTertiary, marginTop: 2 }]}>
+                  Last Update: {lastUpdateDate} | <Text style={[styles.footer, { color: colors.textTertiary }]}>v{version}</Text>
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        </View>
+
+
       </ScrollView>
     </View>
   );
