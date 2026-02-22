@@ -2,15 +2,15 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { X } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import { useResponsiveDimensions } from '@/utils/responsive';
 
@@ -25,7 +25,6 @@ export default function AddStudentModal({ visible, onClose, onSubmit }: AddStude
   const { width } = useResponsiveDimensions();
   const [name, setName] = useState('');
   const [program, setProgram] = useState('');
-  const modalMaxWidth = Math.min(420, width * 0.92);
 
   const handleSubmit = () => {
     const trimmedName = name.trim();
@@ -49,7 +48,17 @@ export default function AddStudentModal({ visible, onClose, onSubmit }: AddStude
         <View style={styles.overlay}>
           <TouchableWithoutFeedback>
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-              <View style={[styles.modal, { backgroundColor: colors.surface, maxWidth: modalMaxWidth }]}>
+              <View
+                style={[
+                  styles.modal,
+                  {
+                    backgroundColor: colors.surface,
+                    width: width * 0.95, // almost full screen width
+                    maxWidth: 600,       // optional max width for very large screens
+                  },
+                ]}
+              >
+                {/* Header */}
                 <View style={styles.header}>
                   <Text style={[styles.title, { color: colors.text }]}>Add Student</Text>
                   <TouchableOpacity onPress={handleClose}>
@@ -57,20 +66,28 @@ export default function AddStudentModal({ visible, onClose, onSubmit }: AddStude
                   </TouchableOpacity>
                 </View>
 
+                {/* Student Name */}
                 <Text style={[styles.label, { color: colors.textSecondary }]}>Student Name</Text>
                 <TextInput
-                  style={[styles.input, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
-                  placeholder="e.g. John Doe"
+                  style={[
+                    styles.input,
+                    { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border },
+                  ]}
+                  placeholder="e.g. Peter Parker"
                   placeholderTextColor={colors.textTertiary}
                   value={name}
                   onChangeText={setName}
                   autoFocus
                 />
 
+                {/* Program / Degree */}
                 <Text style={[styles.label, { color: colors.textSecondary }]}>Program / Degree (optional)</Text>
                 <TextInput
-                  style={[styles.input, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
-                  placeholder="e.g. BSc Computer Science"
+                  style={[
+                    styles.input,
+                    { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border },
+                  ]}
+                  placeholder="e.g. Bsc Hons Information Technology"
                   placeholderTextColor={colors.textTertiary}
                   value={program}
                   onChangeText={setProgram}
@@ -78,6 +95,7 @@ export default function AddStudentModal({ visible, onClose, onSubmit }: AddStude
                   returnKeyType="done"
                 />
 
+                {/* Submit Button */}
                 <TouchableOpacity
                   style={[styles.button, { backgroundColor: colors.accent, opacity: name.trim() ? 1 : 0.4 }]}
                   onPress={handleSubmit}
@@ -100,7 +118,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: 12, // reduced padding for full-width modal
   },
   modal: {
     width: '100%',
