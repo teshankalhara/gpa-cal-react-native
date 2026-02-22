@@ -1,20 +1,22 @@
 import { useGPA } from '@/contexts/GPAContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import * as Haptics from 'expo-haptics';
-import { Download, Plus, Trash2, X } from 'lucide-react-native';
+import { Stack } from 'expo-router';
+import { Download, Pencil, Plus, Trash2, X } from 'lucide-react-native';
 import React, { useCallback, useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Alert,
+  Dimensions,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 
 export default function GradeScaleScreen() {
@@ -25,6 +27,12 @@ export default function GradeScaleScreen() {
   const [showAddGrade, setShowAddGrade] = useState(false);
   const [newGrade, setNewGrade] = useState('');
   const [newPoints, setNewPoints] = useState('');
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editGrade, setEditGrade] = useState('');
+  const [editPoints, setEditPoints] = useState('');
+
+  const { width: screenWidth } = Dimensions.get('window');
+  const modalWidth = Math.min(screenWidth * 0.95, 600);
 
   const handleUpdatePoints = useCallback(
     (index: number, value: string) => {
@@ -73,6 +81,32 @@ export default function GradeScaleScreen() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }, [newGrade, newPoints, gradeScale, updateGradeScale]);
 
+  const handleOpenEdit = useCallback((index: number) => {
+    setEditingIndex(index);
+    setEditGrade(gradeScale[index].grade);
+    setEditPoints(String(gradeScale[index].points));
+  }, [gradeScale]);
+
+  const handleSaveEdit = useCallback(() => {
+    if (editingIndex == null || !editGrade.trim() || !editPoints.trim()) return;
+    const points = parseFloat(editPoints);
+    if (isNaN(points)) return;
+    const trimmedGrade = editGrade.trim();
+    const otherHasGrade = gradeScale.some((g, i) => i !== editingIndex && g.grade === trimmedGrade);
+    if (otherHasGrade) {
+      Alert.alert('Duplicate', 'This grade already exists.');
+      return;
+    }
+    const updated = [...gradeScale];
+    updated[editingIndex] = { grade: trimmedGrade, points };
+    updated.sort((a, b) => b.points - a.points);
+    updateGradeScale(updated);
+    setEditingIndex(null);
+    setEditGrade('');
+    setEditPoints('');
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, [editingIndex, editGrade, editPoints, gradeScale, updateGradeScale]);
+
   const handleImport = useCallback(() => {
     const success = importGradeScale(importJson);
     if (success) {
@@ -90,6 +124,8 @@ export default function GradeScaleScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Stack.Screen options={{ headerBackTitle: 'Back' }} />
+
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.topActions}>
           <TouchableOpacity
@@ -99,6 +135,7 @@ export default function GradeScaleScreen() {
             <Plus size={16} color="#fff" />
             <Text style={styles.actionBtnText}>Add Grade</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 }]}
             onPress={() => setShowImport(true)}
@@ -111,122 +148,162 @@ export default function GradeScaleScreen() {
         <View style={[styles.headerRow, { borderBottomColor: colors.border }]}>
           <Text style={[styles.headerCell, styles.gradeCol, { color: colors.textSecondary }]}>Grade</Text>
           <Text style={[styles.headerCell, styles.pointsCol, { color: colors.textSecondary }]}>Points</Text>
-          <View style={styles.actionCol} />
+          <Text style={[styles.headerCell, styles.pointsCol, { color: colors.textSecondary }]}>Action</Text>
         </View>
 
         {gradeScale.map((item, index) => (
-          <View
-            key={item.grade}
-            style={[styles.row, { borderBottomColor: colors.border }]}
-          >
+          <View key={item.grade} style={[styles.row, { borderBottomColor: colors.border }]}>
             <View style={[styles.gradeBadge, { backgroundColor: colors.accentLight }]}>
               <Text style={[styles.gradeText, { color: colors.accent }]}>{item.grade}</Text>
             </View>
+
             <TextInput
-              style={[
-                styles.pointsInput,
-                {
-                  backgroundColor: colors.surfaceAlt,
-                  color: colors.text,
-                  borderColor: colors.border,
-                },
-              ]}
+              style={[styles.pointsInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
               value={String(item.points)}
               onChangeText={(val) => handleUpdatePoints(index, val)}
               keyboardType="decimal-pad"
               selectTextOnFocus
+              readOnly
             />
-            <TouchableOpacity
-              onPress={() => handleDeleteGrade(index)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Trash2 size={16} color={colors.danger} />
-            </TouchableOpacity>
+            <View style={[styles.actionCol, { borderBottomColor: colors.border }]}>
+              <TouchableOpacity onPress={() => handleOpenEdit(index)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <Pencil size={16} color={colors.accent} />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => handleDeleteGrade(index)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <Trash2 size={16} color={colors.danger} />
+              </TouchableOpacity>
+            </View>
           </View>
         ))}
       </ScrollView>
 
+      {/* Add Grade Modal */}
       <Modal visible={showAddGrade} transparent animationType="fade" onRequestClose={() => setShowAddGrade(false)}>
         <TouchableWithoutFeedback onPress={() => setShowAddGrade(false)}>
           <View style={styles.overlay}>
-            <TouchableWithoutFeedback>
-              <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                <View style={[styles.modal, { backgroundColor: colors.surface }]}>
-                  <View style={styles.modalHeader}>
-                    <Text style={[styles.modalTitle, { color: colors.text }]}>Add Grade</Text>
-                    <TouchableOpacity onPress={() => setShowAddGrade(false)}>
-                      <X size={22} color={colors.textSecondary} />
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Grade Name</Text>
-                  <TextInput
-                    style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
-                    placeholder="e.g. A+"
-                    placeholderTextColor={colors.textTertiary}
-                    value={newGrade}
-                    onChangeText={setNewGrade}
-                    autoCapitalize="characters"
-                  />
-                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Points</Text>
-                  <TextInput
-                    style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
-                    placeholder="e.g. 4.0"
-                    placeholderTextColor={colors.textTertiary}
-                    value={newPoints}
-                    onChangeText={setNewPoints}
-                    keyboardType="decimal-pad"
-                  />
-                  <TouchableOpacity
-                    style={[styles.saveBtn, { backgroundColor: colors.accent }]}
-                    onPress={handleAddGrade}
-                  >
-                    <Text style={styles.saveBtnText}>Add</Text>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}
+            >
+              <View style={[styles.modal, { width: modalWidth, backgroundColor: colors.surface }]}>
+                <View style={styles.modalHeader}>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>Add Grade</Text>
+                  <TouchableOpacity onPress={() => setShowAddGrade(false)}>
+                    <X size={22} color={colors.textSecondary} />
                   </TouchableOpacity>
                 </View>
-              </KeyboardAvoidingView>
-            </TouchableWithoutFeedback>
+
+                <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Grade Name</Text>
+                <TextInput
+                  style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
+                  placeholder="e.g. A+"
+                  placeholderTextColor={colors.textTertiary}
+                  value={newGrade}
+                  onChangeText={setNewGrade}
+                  autoCapitalize="characters"
+                />
+
+                <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Points</Text>
+                <TextInput
+                  style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
+                  placeholder="e.g. 4.0"
+                  placeholderTextColor={colors.textTertiary}
+                  value={newPoints}
+                  onChangeText={setNewPoints}
+                  keyboardType="decimal-pad"
+                />
+
+                <TouchableOpacity style={[styles.saveBtn, { backgroundColor: colors.accent }]} onPress={handleAddGrade}>
+                  <Text style={styles.saveBtnText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+            </KeyboardAvoidingView>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
 
+      {/* Import JSON Modal */}
       <Modal visible={showImport} transparent animationType="fade" onRequestClose={() => setShowImport(false)}>
         <TouchableWithoutFeedback onPress={() => setShowImport(false)}>
           <View style={styles.overlay}>
-            <TouchableWithoutFeedback>
-              <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                <View style={[styles.modal, { backgroundColor: colors.surface }]}>
-                  <View style={styles.modalHeader}>
-                    <Text style={[styles.modalTitle, { color: colors.text }]}>Import Grade Scale</Text>
-                    <TouchableOpacity onPress={() => setShowImport(false)}>
-                      <X size={22} color={colors.textSecondary} />
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={[styles.hint, { color: colors.textSecondary }]}>
-                    Paste a JSON array:{'\n'}[{`{"grade":"A+","points":4.0}`}, ...]
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.modalInput,
-                      styles.jsonInput,
-                      { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border },
-                    ]}
-                    placeholder='[{"grade":"A+","points":4.0}]'
-                    placeholderTextColor={colors.textTertiary}
-                    value={importJson}
-                    onChangeText={setImportJson}
-                    multiline
-                    numberOfLines={6}
-                    textAlignVertical="top"
-                  />
-                  <TouchableOpacity
-                    style={[styles.saveBtn, { backgroundColor: colors.accent }]}
-                    onPress={handleImport}
-                  >
-                    <Text style={styles.saveBtnText}>Import</Text>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}
+            >
+              <ScrollView contentContainerStyle={{ width: modalWidth, backgroundColor: colors.surface, borderRadius: 20, padding: 24 }}>
+                <View style={styles.modalHeader}>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>Import Grade Scale</Text>
+                  <TouchableOpacity onPress={() => setShowImport(false)}>
+                    <X size={22} color={colors.textSecondary} />
                   </TouchableOpacity>
                 </View>
-              </KeyboardAvoidingView>
-            </TouchableWithoutFeedback>
+
+                <Text style={[styles.hint, { color: colors.textSecondary }]}>
+                  Paste a JSON array:{'\n'}[{`{"grade":"A+","points":4.0}`}, ...]
+                </Text>
+
+                <TextInput
+                  style={[styles.modalInput, styles.jsonInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
+                  placeholder='[{"grade":"A+","points":4.0}]'
+                  placeholderTextColor={colors.textTertiary}
+                  value={importJson}
+                  onChangeText={setImportJson}
+                  multiline
+                  numberOfLines={6}
+                  textAlignVertical="top"
+                />
+
+                <TouchableOpacity style={[styles.saveBtn, { backgroundColor: colors.accent }]} onPress={handleImport}>
+                  <Text style={styles.saveBtnText}>Import</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      {/* Edit Grade Modal */}
+      <Modal visible={editingIndex !== null} transparent animationType="fade" onRequestClose={() => setEditingIndex(null)}>
+        <TouchableWithoutFeedback onPress={() => setEditingIndex(null)}>
+          <View style={styles.overlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}
+            >
+              <View style={[styles.modal, { width: modalWidth, backgroundColor: colors.surface }]}>
+                <View style={styles.modalHeader}>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Grade</Text>
+                  <TouchableOpacity onPress={() => setEditingIndex(null)}>
+                    <X size={22} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Grade Name</Text>
+                <TextInput
+                  style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
+                  placeholder="e.g. A+"
+                  placeholderTextColor={colors.textTertiary}
+                  value={editGrade}
+                  onChangeText={setEditGrade}
+                  autoCapitalize="characters"
+                />
+
+                <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Points</Text>
+                <TextInput
+                  style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text, borderColor: colors.border }]}
+                  placeholder="e.g. 4.0"
+                  placeholderTextColor={colors.textTertiary}
+                  value={editPoints}
+                  onChangeText={setEditPoints}
+                  keyboardType="decimal-pad"
+                />
+
+                <TouchableOpacity style={[styles.saveBtn, { backgroundColor: colors.accent }]} onPress={handleSaveEdit}>
+                  <Text style={styles.saveBtnText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </KeyboardAvoidingView>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
@@ -242,6 +319,8 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+
+  // Top buttons (Add / Import)
   topActions: {
     flexDirection: 'row',
     gap: 10,
@@ -258,31 +337,45 @@ const styles = StyleSheet.create({
   actionBtnText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600' as const,
+    fontWeight: '600'
   },
+
+  // Table header
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingBottom: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     marginBottom: 4,
   },
   headerCell: {
     fontSize: 12,
-    fontWeight: '600' as const,
-    textTransform: 'uppercase' as const,
+    fontWeight: '600',
+    textTransform: 'uppercase',
     letterSpacing: 0.5,
+    textAlign: 'center',
   },
+
+  // Table columns
   gradeCol: {
-    flex: 1,
+    flex: 2,
+    justifyContent: 'center',
+    textAlign: 'center',
   },
   pointsCol: {
-    width: 90,
+    flex: 2,
+    justifyContent: 'center',
     textAlign: 'center',
   },
   actionCol: {
-    width: 32,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    textAlign: 'center',
+    gap: 30,
   },
+
+  // Table rows
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -296,22 +389,27 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: 'flex-start',
     marginRight: 10,
+    justifyContent: 'center',
+    textAlign: 'center',
   },
   gradeText: {
     fontSize: 15,
-    fontWeight: '700' as const,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   pointsInput: {
-    width: 80,
+    flex: 1,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 15,
     textAlign: 'center',
     borderWidth: 1,
-    fontWeight: '600' as const,
+    fontWeight: '600',
     marginRight: 12,
   },
+
+  // Overlay / modal
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -321,7 +419,7 @@ const styles = StyleSheet.create({
   },
   modal: {
     width: '100%',
-    minWidth: 300,
+    maxWidth: 500,
     borderRadius: 20,
     padding: 24,
   },
@@ -333,11 +431,11 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '700' as const,
+    fontWeight: '700',
   },
   inputLabel: {
     fontSize: 13,
-    fontWeight: '600' as const,
+    fontWeight: '600',
     marginBottom: 6,
     marginTop: 8,
   },
@@ -367,6 +465,6 @@ const styles = StyleSheet.create({
   saveBtnText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600' as const,
+    fontWeight: '600',
   },
 });
