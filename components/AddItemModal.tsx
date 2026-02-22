@@ -1,16 +1,16 @@
 import { useTheme } from '@/contexts/ThemeContext';
 import { X } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import { useResponsiveDimensions } from '@/utils/responsive';
 
@@ -34,7 +34,11 @@ export default function AddItemModal({
   const { colors } = useTheme();
   const { width } = useResponsiveDimensions();
   const [value, setValue] = useState(initialValue);
-  const modalMaxWidth = Math.min(420, width * 0.92);
+
+  // Reset value when modal opens/closes
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue, visible]);
 
   const handleSubmit = () => {
     const trimmed = value.trim();
@@ -56,13 +60,25 @@ export default function AddItemModal({
         <View style={styles.overlay}>
           <TouchableWithoutFeedback>
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-              <View style={[styles.modal, { backgroundColor: colors.surface, maxWidth: modalMaxWidth }]}>
+              <View
+                style={[
+                  styles.modal,
+                  {
+                    backgroundColor: colors.surface,
+                    width: width * 0.95, // almost full width
+                    maxWidth: 600,       // optional max width for tablets
+                  },
+                ]}
+              >
+                {/* Header */}
                 <View style={styles.header}>
                   <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
                   <TouchableOpacity onPress={handleClose}>
                     <X size={22} color={colors.textSecondary} />
                   </TouchableOpacity>
                 </View>
+
+                {/* Input */}
                 <TextInput
                   style={[
                     styles.input,
@@ -80,6 +96,8 @@ export default function AddItemModal({
                   onSubmitEditing={handleSubmit}
                   returnKeyType="done"
                 />
+
+                {/* Button */}
                 <TouchableOpacity
                   style={[styles.button, { backgroundColor: colors.accent, opacity: value.trim() ? 1 : 0.5 }]}
                   onPress={handleSubmit}
@@ -102,7 +120,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: 12, // reduced padding for full-width modal
   },
   modal: {
     width: '100%',
