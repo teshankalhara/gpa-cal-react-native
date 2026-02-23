@@ -24,14 +24,14 @@ import { useResponsiveDimensions } from '@/utils/responsive';
 export default function SemesterDetailScreen() {
   const { colors } = useTheme();
   const { width, scale } = useResponsiveDimensions();
-  const { students, gradeScale, addSubject, updateSubject, deleteSubject } = useGPA();
-  const { studentId, yearId, semId } = useLocalSearchParams<{ studentId: string; yearId: string; semId: string }>();
+  const { accounts, gradeScale, addSubject, updateSubject, deleteSubject } = useGPA();
+  const { accountId, yearId, semId } = useLocalSearchParams<{ accountId: string; yearId: string; semId: string }>();
   const [showAddSubject, setShowAddSubject] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const gpaSize = Math.round(Math.min(110 * scale, width * 0.36));
 
-  const student = useMemo(() => students.find((s) => s.id === studentId), [students, studentId]);
-  const year = useMemo(() => student?.years.find((y) => y.id === yearId), [student, yearId]);
+  const account = useMemo(() => accounts.find((s) => s.id === accountId), [accounts, accountId]);
+  const year = useMemo(() => account?.years.find((y) => y.id === yearId), [account, yearId]);
   const semester = useMemo(() => year?.semesters.find((s) => s.id === semId), [year, semId]);
 
   const semGPA = useMemo(
@@ -46,25 +46,25 @@ export default function SemesterDetailScreen() {
 
   const handleAddSubject = useCallback(
     (data: Omit<Subject, 'id'>) => {
-      if (studentId && yearId && semId) {
+      if (accountId && yearId && semId) {
         if (editingSubject) {
-          updateSubject(studentId, yearId, semId, editingSubject.id, data);
+          updateSubject(accountId, yearId, semId, editingSubject.id, data);
         } else {
-          addSubject(studentId, yearId, semId, data);
+          addSubject(accountId, yearId, semId, data);
         }
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         setEditingSubject(null);
       }
     },
-    [studentId, yearId, semId, editingSubject, addSubject, updateSubject]
+    [accountId, yearId, semId, editingSubject, addSubject, updateSubject]
   );
 
   const handleDeleteSubject = useCallback(
     (subId: string, subName: string) => {
       if (Platform.OS === 'web') {
         const ok = window.confirm(`Delete Subject\n\nDelete "${subName}"?`);
-        if (ok && studentId && yearId && semId) {
-          deleteSubject(studentId, yearId, semId, subId);
+        if (ok && accountId && yearId && semId) {
+          deleteSubject(accountId, yearId, semId, subId);
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         }
         return;
@@ -75,18 +75,18 @@ export default function SemesterDetailScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            if (studentId && yearId && semId) {
-              deleteSubject(studentId, yearId, semId, subId);
+            if (accountId && yearId && semId) {
+              deleteSubject(accountId, yearId, semId, subId);
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
             }
           },
         },
       ]);
     },
-    [studentId, yearId, semId, deleteSubject]
+    [accountId, yearId, semId, deleteSubject]
   );
 
-  if (!student || !year || !semester) {
+  if (!account || !year || !semester) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={[styles.errorText, { color: colors.textSecondary }]}>Semester not found</Text>
