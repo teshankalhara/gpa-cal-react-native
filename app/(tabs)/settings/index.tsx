@@ -33,17 +33,17 @@ const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: typeof Sun }[] = [
 
 export default function SettingsScreen() {
   const { colors, themeMode, setThemeMode } = useTheme();
-  const { resetGradeScale, students } = useGPA();
+  const { resetGradeScale, accounts } = useGPA();
   const router = useRouter();
   const lastUpdateDate = "Feb 23, 2026";
   const version="1.00"
 
-  const totalYears = students.reduce((a, s) => a + s.years.length, 0);
-  const totalSemesters = students.reduce(
+  const totalYears = accounts.reduce((a, s) => a + s.years.length, 0);
+  const totalSemesters = accounts.reduce(
     (a, s) => a + s.years.reduce((b, y) => b + y.semesters.length, 0),
     0
   );
-  const totalSubjects = students.reduce(
+  const totalSubjects = accounts.reduce(
     (a, s) =>
       a + s.years.reduce((b, y) => b + y.semesters.reduce((c, sem) => c + sem.subjects.length, 0), 0),
     0
@@ -66,14 +66,14 @@ export default function SettingsScreen() {
   const handleClearAll = () => {
     Alert.alert(
       'Clear All Data',
-      'This will delete all students, years, semesters, subjects, and reset grade scale. This cannot be undone.',
+      'This will delete all accounts, years, semesters, subjects, and reset grade scale. This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Clear Everything',
           style: 'destructive',
           onPress: async () => {
-            await AsyncStorage.multiRemove(['gpa_students_data', 'gpa_grade_scale']);
+            await AsyncStorage.multiRemove(['gpa_accounts_data', 'gpa_grade_scale']);
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
             Alert.alert('Done', 'All data has been cleared. Please restart the app.');
           },
@@ -168,11 +168,11 @@ export default function SettingsScreen() {
               <View>
                 <Text style={[styles.menuTitle, { color: colors.text }]}>Summary</Text>
                 <Text style={[styles.menuSub, { color: colors.textSecondary }]}>
-                  {/* {students.length} student{students.length !== 1 ? 's ' : ' '}|{' '}
+                  {/* {accounts.length} account{accounts.length !== 1 ? 's ' : ' '}|{' '}
                   {totalYears} year{totalYears !== 1 ? 's ' : ' '}|{' '}
                   {totalSemesters} semester{totalSemesters !== 1 ? 's ' : ' '}|{' '}
                   {totalSubjects} subject{totalSubjects !== 1 ? 's ' : ''} */}
-                  {students.length} student{students.length !== 1 ? 's ' : ' '}
+                  {accounts.length} account{accounts.length !== 1 ? 's ' : ' '}
                 </Text>
               </View>
             </View>
