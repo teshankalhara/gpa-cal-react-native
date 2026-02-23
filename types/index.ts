@@ -23,7 +23,7 @@ export interface GradeValue {
     semesters: Semester[];
   }
   
-  export interface Student {
+  export interface Account {
     id: string;
     name: string;
     program: string;
@@ -32,7 +32,7 @@ export interface GradeValue {
   }
   
   export interface AppData {
-    students: Student[];
+    accounts: Account[];
     gradeScale: GradeValue[];
   }
   
