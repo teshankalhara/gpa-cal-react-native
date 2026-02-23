@@ -371,19 +371,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 16,
+        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
       },
       android: {
         elevation: 12,
       },
       web: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 16,
+        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
       },
     }),
   },
