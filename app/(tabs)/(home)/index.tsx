@@ -1,6 +1,6 @@
-import AddStudentModal from '@/components/AddStudentModal';
+import AddAccountModal from '@/components/AddAccountModal';
 import EmptyState from '@/components/EmptyState';
-import StudentCard from '@/components/StudentCard';
+import AccountCard from '@/components/AccountCard';
 import { useGPA } from '@/contexts/GPAContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import * as Haptics from 'expo-haptics';
@@ -17,35 +17,35 @@ import {
     View,
 } from 'react-native';
 
-export default function StudentsScreen() {
+export default function AccountsScreen() {
   const { colors } = useTheme();
-  const { students, gradeScale, addStudent, deleteStudent, isLoading } = useGPA();
+  const { accounts, gradeScale, addAccount, deleteAccount, isLoading } = useGPA();
   const router = useRouter();
-  const [showAddStudent, setShowAddStudent] = useState(false);
+  const [showAddAccount, setShowAddAccount] = useState(false);
 
-  const handleAddStudent = useCallback(
+  const handleAddAccount = useCallback(
     (name: string, program: string) => {
-      addStudent(name, program);
+      addAccount(name, program);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     },
-    [addStudent]
+    [addAccount]
   );
 
-  const handleDeleteStudent = useCallback(
+  const handleDeleteAccount = useCallback(
     (id: string, name: string) => {
-      Alert.alert('Delete Student', `Delete "${name}" and all their data?`, [
+      Alert.alert('Delete Account', `Delete "${name}" and all their data?`, [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            deleteStudent(id);
+            deleteAccount(id);
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
           },
         },
       ]);
     },
-    [deleteStudent]
+    [deleteAccount]
   );
 
   if (isLoading) {
@@ -64,52 +64,52 @@ export default function StudentsScreen() {
             <Users size={28} color={colors.accent} />
           </View>
           <Text style={[styles.heroTitle, { color: colors.text }]}>
-            {students.length} Student{students.length !== 1 ? 's' : ''}
+            {accounts.length} Account{accounts.length !== 1 ? 's' : ''}
           </Text>
           <Text style={[styles.heroSub, { color: colors.textSecondary }]}>
-            Track and compare GPAs across students
+            Track and compare GPAs across accounts
           </Text>
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Students</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Accounts</Text>
           <TouchableOpacity
             style={[styles.addButton, { backgroundColor: colors.accent }]}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setShowAddStudent(true);
+              setShowAddAccount(true);
             }}
-            testID="add-student"
+            testID="add-account"
           >
             <Plus size={18} color="#fff" />
-            <Text style={styles.addButtonText}>Add Student</Text>
+            <Text style={styles.addButtonText}>Add Account</Text>
           </TouchableOpacity>
         </View>
 
-        {students.length === 0 ? (
+        {accounts.length === 0 ? (
           <EmptyState
             icon={<Users size={32} color={colors.textTertiary} />}
-            title="No Students Yet"
-            subtitle='Tap "Add Student" to start tracking GPA for your students.'
+            title="No Accounts Yet"
+            subtitle='Tap "Add Account" to start tracking GPA for your accounts.'
           />
         ) : (
-          students.map((student) => (
-            <StudentCard
-              key={student.id}
-              student={student}
+          accounts.map((account) => (
+            <AccountCard
+              key={account.id}
+              account={account}
               gradeScale={gradeScale}
               onPress={() =>
-                router.push({ pathname: '/student' as any, params: { studentId: student.id } })
+                router.push({ pathname: '/student' as any, params: { accountId: account.id } })
               }
             />
           ))
         )}
       </ScrollView>
 
-      <AddStudentModal
-        visible={showAddStudent}
-        onClose={() => setShowAddStudent(false)}
-        onSubmit={handleAddStudent}
+      <AddAccountModal
+        visible={showAddAccount}
+        onClose={() => setShowAddAccount(false)}
+        onSubmit={handleAddAccount}
       />
     </View>
   );
