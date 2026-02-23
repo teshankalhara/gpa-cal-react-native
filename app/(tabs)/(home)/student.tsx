@@ -20,48 +20,48 @@ import {
     View,
 } from 'react-native';
 
-export default function StudentDashboardScreen() {
+export default function AccountDashboardScreen() {
     const { colors } = useTheme();
     const { width, scale } = useResponsiveDimensions();
-    const { students, gradeScale, addYear, deleteYear, deleteStudent, isLoading } = useGPA();
-    const { studentId } = useLocalSearchParams<{ studentId: string }>();
+    const { accounts, gradeScale, addYear, deleteYear, deleteAccount, isLoading } = useGPA();
+    const { accountId } = useLocalSearchParams<{ accountId: string }>();
     const router = useRouter();
     const [showAddYear, setShowAddYear] = useState(false);
     const gpaSize = Math.round(Math.min(160 * scale, width * 0.5));
 
-    const student = useMemo(() => students.find((s) => s.id === studentId), [students, studentId]);
+    const account = useMemo(() => accounts.find((s) => s.id === accountId), [accounts, accountId]);
 
     const cumulativeGPA = useMemo(
-        () => (student ? calculateCumulativeGPA(student.years, gradeScale) : 0),
-        [student, gradeScale]
+        () => (account ? calculateCumulativeGPA(account.years, gradeScale) : 0),
+        [account, gradeScale]
     );
-    const totalCredits = useMemo(() => (student ? getTotalCredits(student.years) : 0), [student]);
-    const totalSubjects = useMemo(() => (student ? getTotalSubjects(student.years) : 0), [student]);
+    const totalCredits = useMemo(() => (account ? getTotalCredits(account.years) : 0), [account]);
+    const totalSubjects = useMemo(() => (account ? getTotalSubjects(account.years) : 0), [account]);
 
     const handleAddYear = useCallback(
         (name: string) => {
-            if (studentId) {
-                addYear(studentId, name);
+            if (accountId) {
+                addYear(accountId, name);
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
         },
-        [studentId, addYear]
+        [accountId, addYear]
     );
 
-    const handleDeleteStudent = useCallback(() => {
-        if (!student) return;
-        Alert.alert('Delete Student', `Delete "${student.name}" and all their data?`, [
+    const handleDeleteAccount = useCallback(() => {
+        if (!account) return;
+        Alert.alert('Delete Account', `Delete "${account.name}" and all their data?`, [
             { text: 'Cancel', style: 'cancel' },
             {
                 text: 'Delete',
                 style: 'destructive',
                 onPress: () => {
-                    deleteStudent(student.id);
+                    deleteAccount(account.id);
                     router.back();
                 },
             },
         ]);
-    }, [student, deleteStudent, router]);
+    }, [account, deleteAccount, router]);
 
     if (isLoading) {
         return (
@@ -71,10 +71,10 @@ export default function StudentDashboardScreen() {
         );
     }
 
-    if (!student) {
+    if (!account) {
         return (
             <View style={[styles.container, { backgroundColor: colors.background }]}>
-                <Text style={[styles.errorText, { color: colors.textSecondary }]}>Student not found</Text>
+                <Text style={[styles.errorText, { color: colors.textSecondary }]}>Account not found</Text>
             </View>
         );
     }
@@ -83,10 +83,10 @@ export default function StudentDashboardScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    title: student.name,
+                    title: account.name,
                     headerRight: () => (
                         <TouchableOpacity
-                            onPress={handleDeleteStudent}
+                            onPress={handleDeleteAccount}
                             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                             style={{
                                 paddingHorizontal: 10,
@@ -101,9 +101,9 @@ export default function StudentDashboardScreen() {
                 }}
             />
             <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-                {student.program ? (
+                {account.program ? (
                     <Text style={[styles.programBadge, { color: colors.accent, backgroundColor: colors.accentLight }]}>
-                        {student.program}
+                        {account.program}
                     </Text>
                 ) : null}
 
@@ -114,7 +114,7 @@ export default function StudentDashboardScreen() {
                 <View style={styles.statsRow}>
                     <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                         <GraduationCap size={18} color={colors.accent} />
-                        <Text style={[styles.statValue, { color: colors.text }]}>{student.years.length}</Text>
+                        <Text style={[styles.statValue, { color: colors.text }]}>{account.years.length}</Text>
                         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Years</Text>
                     </View>
                     <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -144,14 +144,14 @@ export default function StudentDashboardScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {student.years.length === 0 ? (
+                {account.years.length === 0 ? (
                     <EmptyState
                         icon={<GraduationCap size={32} color={colors.textTertiary} />}
                         title="No Academic Years"
                         subtitle='Tap "Add Year" to start tracking GPA. Add years like 1st Year, 2nd Year, etc.'
                     />
                 ) : (
-                    student.years.map((year) => (
+                    account.years.map((year) => (
                         <YearCard
                             key={year.id}
                             year={year}
@@ -159,7 +159,7 @@ export default function StudentDashboardScreen() {
                             onPress={() =>
                                 router.push({
                                     pathname: '/year' as any,
-                                    params: { studentId: student.id, yearId: year.id },
+                                    params: { accountId: account.id, yearId: year.id },
                                 })
                             }
                         />
