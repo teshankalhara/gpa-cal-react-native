@@ -1,37 +1,37 @@
 import { DEFAULT_GRADE_SCALE } from '@/constants/grades';
-import { AcademicYear, GradeValue, Semester, Student, Subject } from '@/types';
+import { AcademicYear, GradeValue, Semester, Account, Subject } from '@/types';
 import { generateId } from '@/utils/gpa';
 import createContextHook from '@nkzw/create-context-hook';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 
-const STUDENTS_KEY = 'gpa_students_data';
+const ACCOUNTS_KEY = 'gpa_accounts_data';
 const GRADE_KEY = 'gpa_grade_scale';
 
 export const [GPAProvider, useGPA] = createContextHook(() => {
-  const [students, setStudents] = useState<Student[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [gradeScale, setGradeScale] = useState<GradeValue[]>(DEFAULT_GRADE_SCALE);
 
   const dataQuery = useQuery({
     queryKey: ['gpaData'],
     queryFn: async () => {
       console.log('[GPAContext] Loading data from storage...');
-      const [studentsData, gradeData] = await Promise.all([
-        AsyncStorage.getItem(STUDENTS_KEY),
+      const [accountsData, gradeData] = await Promise.all([
+        AsyncStorage.getItem(ACCOUNTS_KEY),
         AsyncStorage.getItem(GRADE_KEY),
       ]);
       return {
-        students: studentsData ? JSON.parse(studentsData) as Student[] : [],
+        accounts: accountsData ? JSON.parse(accountsData) as Account[] : [],
         gradeScale: gradeData ? JSON.parse(gradeData) as GradeValue[] : DEFAULT_GRADE_SCALE,
       };
     },
   });
 
-  const saveStudentsMutation = useMutation({
-    mutationFn: async (data: Student[]) => {
-      console.log('[GPAContext] Saving students data...');
-      await AsyncStorage.setItem(STUDENTS_KEY, JSON.stringify(data));
+  const saveAccountsMutation = useMutation({
+    mutationFn: async (data: Account[]) => {
+      console.log('[GPAContext] Saving accounts data...');
+      await AsyncStorage.setItem(ACCOUNTS_KEY, JSON.stringify(data));
       return data;
     },
   });
@@ -46,76 +46,76 @@ export const [GPAProvider, useGPA] = createContextHook(() => {
 
   useEffect(() => {
     if (dataQuery.data) {
-      setStudents(dataQuery.data.students);
+      setAccounts(dataQuery.data.accounts);
       setGradeScale(dataQuery.data.gradeScale);
     }
   }, [dataQuery.data]);
 
-  const persistStudents = useCallback((updated: Student[]) => {
-    setStudents(updated);
-    saveStudentsMutation.mutate(updated);
+  const persistAccounts = useCallback((updated: Account[]) => {
+    setAccounts(updated);
+    saveAccountsMutation.mutate(updated);
   }, []);
 
-  const addStudent = useCallback((name: string, program: string) => {
-    const newStudent: Student = {
+  const addAccount = useCallback((name: string, program: string) => {
+    const newAccount: Account = {
       id: generateId(),
       name,
       program,
       years: [],
       createdAt: Date.now(),
     };
-    const updated = [...students, newStudent];
-    persistStudents(updated);
-    return newStudent;
-  }, [students, persistStudents]);
+    const updated = [...accounts, newAccount];
+    persistAccounts(updated);
+    return newAccount;
+  }, [accounts, persistAccounts]);
 
-  const updateStudent = useCallback((id: string, name: string, program: string) => {
-    const updated = students.map((s) =>
+  const updateAccount = useCallback((id: string, name: string, program: string) => {
+    const updated = accounts.map((s) =>
       s.id === id ? { ...s, name, program } : s
     );
-    persistStudents(updated);
-  }, [students, persistStudents]);
+    persistAccounts(updated);
+  }, [accounts, persistAccounts]);
 
-  const deleteStudent = useCallback((id: string) => {
-    const updated = students.filter((s) => s.id !== id);
-    persistStudents(updated);
-  }, [students, persistStudents]);
+  const deleteAccount = useCallback((id: string) => {
+    const updated = accounts.filter((s) => s.id !== id);
+    persistAccounts(updated);
+  }, [accounts, persistAccounts]);
 
-  const getStudent = useCallback((id: string) => {
-    return students.find((s) => s.id === id);
-  }, [students]);
+  const getAccount = useCallback((id: string) => {
+    return accounts.find((s) => s.id === id);
+  }, [accounts]);
 
-  const addYear = useCallback((studentId: string, name: string) => {
+  const addYear = useCallback((accountId: string, name: string) => {
     const newYear: AcademicYear = { id: generateId(), name, semesters: [] };
-    const updated = students.map((s) =>
-      s.id === studentId ? { ...s, years: [...s.years, newYear] } : s
+    const updated = accounts.map((s) =>
+      s.id === accountId ? { ...s, years: [...s.years, newYear] } : s
     );
-    persistStudents(updated);
+    persistAccounts(updated);
     return newYear;
-  }, [students, persistStudents]);
+  }, [accounts, persistAccounts]);
 
-  const updateYear = useCallback((studentId: string, yearId: string, name: string) => {
-    const updated = students.map((s) =>
-      s.id === studentId
+  const updateYear = useCallback((accountId: string, yearId: string, name: string) => {
+    const updated = accounts.map((s) =>
+      s.id === accountId
         ? { ...s, years: s.years.map((y) => (y.id === yearId ? { ...y, name } : y)) }
         : s
     );
-    persistStudents(updated);
-  }, [students, persistStudents]);
+    persistAccounts(updated);
+  }, [accounts, persistAccounts]);
 
-  const deleteYear = useCallback((studentId: string, yearId: string) => {
-    const updated = students.map((s) =>
-      s.id === studentId
+  const deleteYear = useCallback((accountId: string, yearId: string) => {
+    const updated = accounts.map((s) =>
+      s.id === accountId
         ? { ...s, years: s.years.filter((y) => y.id !== yearId) }
         : s
     );
-    persistStudents(updated);
-  }, [students, persistStudents]);
+    persistAccounts(updated);
+  }, [accounts, persistAccounts]);
 
-  const addSemester = useCallback((studentId: string, yearId: string, name: string) => {
+  const addSemester = useCallback((accountId: string, yearId: string, name: string) => {
     const newSem: Semester = { id: generateId(), name, subjects: [] };
-    const updated = students.map((s) =>
-      s.id === studentId
+    const updated = accounts.map((s) =>
+      s.id === accountId
         ? {
             ...s,
             years: s.years.map((y) =>
@@ -124,13 +124,13 @@ export const [GPAProvider, useGPA] = createContextHook(() => {
           }
         : s
     );
-    persistStudents(updated);
+    persistAccounts(updated);
     return newSem;
-  }, [students, persistStudents]);
+  }, [accounts, persistAccounts]);
 
-  const updateSemester = useCallback((studentId: string, yearId: string, semId: string, name: string) => {
-    const updated = students.map((s) =>
-      s.id === studentId
+  const updateSemester = useCallback((accountId: string, yearId: string, semId: string, name: string) => {
+    const updated = accounts.map((s) =>
+      s.id === accountId
         ? {
             ...s,
             years: s.years.map((y) =>
@@ -141,12 +141,12 @@ export const [GPAProvider, useGPA] = createContextHook(() => {
           }
         : s
     );
-    persistStudents(updated);
-  }, [students, persistStudents]);
+    persistAccounts(updated);
+  }, [accounts, persistAccounts]);
 
-  const deleteSemester = useCallback((studentId: string, yearId: string, semId: string) => {
-    const updated = students.map((s) =>
-      s.id === studentId
+  const deleteSemester = useCallback((accountId: string, yearId: string, semId: string) => {
+    const updated = accounts.map((s) =>
+      s.id === accountId
         ? {
             ...s,
             years: s.years.map((y) =>
@@ -157,13 +157,13 @@ export const [GPAProvider, useGPA] = createContextHook(() => {
           }
         : s
     );
-    persistStudents(updated);
-  }, [students, persistStudents]);
+    persistAccounts(updated);
+  }, [accounts, persistAccounts]);
 
-  const addSubject = useCallback((studentId: string, yearId: string, semId: string, subject: Omit<Subject, 'id'>) => {
+  const addSubject = useCallback((accountId: string, yearId: string, semId: string, subject: Omit<Subject, 'id'>) => {
     const newSubject: Subject = { ...subject, id: generateId() };
-    const updated = students.map((s) =>
-      s.id === studentId
+    const updated = accounts.map((s) =>
+      s.id === accountId
         ? {
             ...s,
             years: s.years.map((y) =>
@@ -179,14 +179,14 @@ export const [GPAProvider, useGPA] = createContextHook(() => {
           }
         : s
     );
-    persistStudents(updated);
+    persistAccounts(updated);
     return newSubject;
-  }, [students, persistStudents]);
+  }, [accounts, persistAccounts]);
 
   const updateSubject = useCallback(
-    (studentId: string, yearId: string, semId: string, subjectId: string, data: Partial<Omit<Subject, 'id'>>) => {
-      const updated = students.map((s) =>
-        s.id === studentId
+    (accountId: string, yearId: string, semId: string, subjectId: string, data: Partial<Omit<Subject, 'id'>>) => {
+      const updated = accounts.map((s) =>
+        s.id === accountId
           ? {
               ...s,
               years: s.years.map((y) =>
@@ -209,14 +209,14 @@ export const [GPAProvider, useGPA] = createContextHook(() => {
             }
           : s
       );
-      persistStudents(updated);
+      persistAccounts(updated);
     },
-    [students, persistStudents]
+    [accounts, persistAccounts]
   );
 
-  const deleteSubject = useCallback((studentId: string, yearId: string, semId: string, subjectId: string) => {
-    const updated = students.map((s) =>
-      s.id === studentId
+  const deleteSubject = useCallback((accountId: string, yearId: string, semId: string, subjectId: string) => {
+    const updated = accounts.map((s) =>
+      s.id === accountId
         ? {
             ...s,
             years: s.years.map((y) =>
@@ -234,8 +234,8 @@ export const [GPAProvider, useGPA] = createContextHook(() => {
           }
         : s
     );
-    persistStudents(updated);
-  }, [students, persistStudents]);
+    persistAccounts(updated);
+  }, [accounts, persistAccounts]);
 
   const updateGradeScale = useCallback((newScale: GradeValue[]) => {
     setGradeScale(newScale);
@@ -262,13 +262,13 @@ export const [GPAProvider, useGPA] = createContextHook(() => {
   }, []);
 
   return {
-    students,
+    accounts,
     gradeScale,
     isLoading: dataQuery.isLoading,
-    addStudent,
-    updateStudent,
-    deleteStudent,
-    getStudent,
+    addAccount,
+    updateAccount,
+    deleteAccount,
+    getAccount,
     addYear,
     updateYear,
     deleteYear,
