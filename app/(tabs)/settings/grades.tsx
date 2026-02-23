@@ -136,13 +136,14 @@ export default function GradeScaleScreen() {
             <Text style={styles.actionBtnText}>Add Grade</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+         {/* <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 }]}
             onPress={() => setShowImport(true)}
           >
             <Download size={16} color={colors.text} />
             <Text style={[styles.actionBtnText, { color: colors.text }]}>Import JSON</Text>
           </TouchableOpacity>
+          */}
         </View>
 
         <View style={[styles.headerRow, { borderBottomColor: colors.border }]}>
