@@ -15,7 +15,7 @@ export default function HomeLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: 'GPA Calculator' }} />
-      <Stack.Screen name="student" options={{ title: 'Student' }} />
+      <Stack.Screen name="student" options={{ title: 'Account' }} />
       <Stack.Screen name="year" options={{ title: 'Year Details' }} />
       <Stack.Screen name="semester" options={{ title: 'Semester' }} />
     </Stack>
