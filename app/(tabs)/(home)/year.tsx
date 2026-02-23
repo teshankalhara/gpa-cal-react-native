@@ -22,14 +22,14 @@ import {
 export default function YearDetailScreen() {
     const { colors } = useTheme();
     const { width, scale } = useResponsiveDimensions();
-    const { students, gradeScale, addSemester, deleteSemester, deleteYear } = useGPA();
-    const { studentId, yearId } = useLocalSearchParams<{ studentId: string; yearId: string }>();
+    const { accounts, gradeScale, addSemester, deleteSemester, deleteYear } = useGPA();
+    const { accountId, yearId } = useLocalSearchParams<{ accountId: string; yearId: string }>();
     const router = useRouter();
     const [showAddSem, setShowAddSem] = useState(false);
     const gpaSize = Math.round(Math.min(130 * scale, width * 0.42));
 
-    const student = useMemo(() => students.find((s) => s.id === studentId), [students, studentId]);
-    const year = useMemo(() => student?.years.find((y) => y.id === yearId), [student, yearId]);
+    const account = useMemo(() => accounts.find((s) => s.id === accountId), [accounts, accountId]);
+    const year = useMemo(() => account?.years.find((y) => y.id === yearId), [account, yearId]);
 
     const yearGPA = useMemo(
         () => (year ? calculateYearGPA(year.semesters, gradeScale) : 0),
@@ -38,12 +38,12 @@ export default function YearDetailScreen() {
 
     const handleAddSemester = useCallback(
         (name: string) => {
-            if (studentId && yearId) {
-                addSemester(studentId, yearId, name);
+            if (accountId && yearId) {
+                addSemester(accountId, yearId, name);
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
         },
-        [studentId, yearId, addSemester]
+        [accountId, yearId, addSemester]
     );
 
     const handleDeleteSemester = useCallback(
@@ -54,33 +54,33 @@ export default function YearDetailScreen() {
                     text: 'Delete',
                     style: 'destructive',
                     onPress: () => {
-                        if (studentId && yearId) {
-                            deleteSemester(studentId, yearId, semId);
+                        if (accountId && yearId) {
+                            deleteSemester(accountId, yearId, semId);
                             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
                         }
                     },
                 },
             ]);
         },
-        [studentId, yearId, deleteSemester]
+        [accountId, yearId, deleteSemester]
     );
 
     const handleDeleteYear = useCallback(() => {
-        if (!year || !studentId) return;
+        if (!year || !accountId) return;
         Alert.alert('Delete Year', `Delete "${year.name}" and all data?`, [
             { text: 'Cancel', style: 'cancel' },
             {
                 text: 'Delete',
                 style: 'destructive',
                 onPress: () => {
-                    deleteYear(studentId, year.id);
+                    deleteYear(accountId, year.id);
                     router.back();
                 },
             },
         ]);
-    }, [year, studentId, deleteYear, router]);
+    }, [year, accountId, deleteYear, router]);
 
-    if (!student || !year) {
+    if (!account || !year) {
         return (
             <View style={[styles.container, { backgroundColor: colors.background }]}>
                 <Text style={[styles.errorText, { color: colors.textSecondary }]}>Year not found</Text>
@@ -143,7 +143,7 @@ export default function YearDetailScreen() {
                             onPress={() =>
                                 router.push({
                                     pathname: '/semester' as any,
-                                    params: { studentId, yearId: year.id, semId: sem.id },
+                                    params: { accountId, yearId: year.id, semId: sem.id },
                                 })
                             }
                             onDelete={() => handleDeleteSemester(sem.id, sem.name)}
