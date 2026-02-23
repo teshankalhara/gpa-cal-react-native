@@ -48,9 +48,9 @@ const slides: OnboardingSlide[] = [
   },
   {
     id: '3',
-    title: 'Multiple Students',
+    title: 'Multiple Accounts',
     subtitle:
-      'Manage GPA records for multiple students in one place. Perfect for tutors, parents, or study groups.',
+      'Manage GPA records for multiple accounts in one place. Perfect for tutors, parents, or study groups.',
     icon: 'users',
     accentColor: '#F59E0B',
     bgPattern: '#D97706',
