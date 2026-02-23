@@ -12,6 +12,8 @@ export default function SettingsLayout() {
         headerTintColor: colors.text,
         headerTitleStyle: { fontWeight: '600' as const },
         headerShadowVisible: false,
+        contentStyle: { backgroundColor: colors.background }, // prevent white flash during navigation
+        animation: 'default', // smooth transition animation
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Settings' }} />
