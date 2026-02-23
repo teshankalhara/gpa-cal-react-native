@@ -1,9 +1,10 @@
+// app/(tabs)/_homeLayout.tsx
 import { useTheme } from '@/contexts/ThemeContext';
 import { Stack } from 'expo-router';
 import React from 'react';
 
 export default function HomeLayout() {
-  const { colors } = useTheme();
+  const { colors, resolvedTheme } = useTheme();
 
   return (
     <Stack
@@ -12,6 +13,8 @@ export default function HomeLayout() {
         headerTintColor: colors.text,
         headerTitleStyle: { fontWeight: '600' as const },
         headerShadowVisible: false,
+        contentStyle: { backgroundColor: colors.background }, // prevent white flash during navigation
+        animation: 'default', // smooth transition animation
       }}
     >
       <Stack.Screen name="index" options={{ title: 'GPA Calculator' }} />
