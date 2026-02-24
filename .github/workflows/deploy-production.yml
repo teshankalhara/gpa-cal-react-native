@@ -49,17 +49,9 @@ jobs:
         run: |
           echo '${{ secrets.CREDENTIALS_JSON }}' > credentials.json
 
-      - name: Build for iOS
-        if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
-        run: eas build --platform ios --profile ${{ github.event.inputs.build_type || 'production' }} --non-interactive
-
       - name: Build for Android
         if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
         run: eas build --platform android --profile ${{ github.event.inputs.build_type || 'production' }} --non-interactive
-
-      - name: Submit to App Stores
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: eas submit --platform all --profile production --non-interactive
 
   notify:
     runs-on: ubuntu-latest
