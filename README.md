@@ -2,6 +2,8 @@
 
 A modern, user-friendly GPA calculator mobile app built with React Native and Expo. Track your academic progress across multiple accounts, semesters, and courses with ease.
 
+You can download apk file - https://drive.google.com/file/d/1rqlEcHFhG9XT7oWd3SCsZiHgthi98RXI/view?usp=drive_link
+
 ## Features
 
 - **Multiple Student Accounts** – Manage GPA calculations for multiple students or academic profiles
