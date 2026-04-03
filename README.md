@@ -1,50 +1,115 @@
-# Welcome to your Expo app 👋
+# GPA Calculator
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, user-friendly GPA calculator mobile app built with React Native and Expo. Track your academic progress across multiple accounts, semesters, and courses with ease.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Multiple Student Accounts** – Manage GPA calculations for multiple students or academic profiles
+- **Semester & Year Organization** – Structure your courses by academic year and semester
+- **Course Management** – Add courses with grades and credit hours
+- **Customizable Grade Scales** – Configure your institution's grading system
+- **Real-time GPA Calculation** – Instant updates as you add/modify courses
+- **Persistent Storage** – Data saved locally on your device
+- **Dark Mode Support** – Automatic theme switching based on system preferences
+- **Cross-Platform** – Available on iOS, Android, and Web
 
+## Tech Stack
+
+- **Framework:** [Expo](https://expo.dev) with [Expo Router](https://docs.expo.dev/router/introduction/)
+- **UI:** React Native with [React Native Paper](https://callstack.github.io/react-native-paper/)
+- **State Management:** React Context + AsyncStorage for persistence
+- **Animations:** [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/)
+- **Icons:** [Lucide React Native](https://lucide.dev/guide/packages/lucide-react-native)
+- **Data Fetching:** [TanStack Query](https://tanstack.com/query)
+- **Type Safety:** TypeScript
+
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- npm or yarn
+- [Expo Go](https://expo.dev/go) app on your mobile device (for testing)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/teshankalhara/gpa-cal-react-native.git
+   cd gpa-cal-react-native
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. Start the development server:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. Open the app:
+   - **Mobile:** Scan the QR code with Expo Go (Android) or Camera app (iOS)
+   - **Emulator:** Press `a` for Android or `i` for iOS
+   - **Web:** Press `w` to open in browser
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Project Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+gpa-cal-react-native/
+├── app/                      # App routes (Expo Router file-based routing)
+│   ├── (tabs)/               # Tab navigation group
+│   │   ├── (home)/           # Home tab with account/semester/year views
+│   │   └── settings/         # Settings tab
+│   ├── onboarding.tsx        # Onboarding screen
+│   ├── _layout.tsx           # Root layout with theme/providers
+│   └── +not-found.tsx        # 404 page
+├── components/               # Reusable UI components
+├── constants/                # App constants and configuration
+├── contexts/                 # React Context providers
+│   ├── GPAContext.tsx        # GPA calculation & data management
+│   └── ThemeContext.tsx      # Theme management
+├── types/                    # TypeScript type definitions
+├── utils/                    # Utility functions
+└── assets/                   # Static assets (images, fonts)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Available Scripts
 
-## Learn more
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start the Expo development server |
+| `npm run android` | Start for Android emulator |
+| `npm run ios` | Start for iOS simulator |
+| `npm run web` | Start for web browser |
+| `npm run lint` | Run ESLint |
 
-To learn more about developing your project with Expo, look at the following resources:
+## Building for Production
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### EAS Build (Recommended)
 
-## Join the community
+This project is configured for [Expo Application Services (EAS)](https://docs.expo.dev/build/introduction/):
 
-Join our community of developers creating universal apps.
+```bash
+# Build for Android
+npx eas build --platform android
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# Build for iOS
+npx eas build --platform ios
+
+# Build for both
+npx eas build --platform all
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+[MIT](LICENSE)
+
+---
+
+Built with ❤️ using [Expo](https://expo.dev)
