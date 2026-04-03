@@ -111,5 +111,15 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 [MIT](LICENSE)
 
 ---
+Preview
+![IMG_7695 JPG](https://github.com/user-attachments/assets/7a401951-4739-4198-8f33-48d0a63f596f)
+![IMG_7696 JPG](https://github.com/user-attachments/assets/b18739be-674a-41cb-a379-34a1eb96eeef)
+![IMG_7698 JPG](https://github.com/user-attachments/assets/e34aa489-ce1f-431d-ae42-38df05e82996)
+![IMG_7697 JPG](https://github.com/user-attachments/assets/af3c2e21-af7f-4f75-bb63-6a62d1199a02)
+
+
+https://github.com/user-attachments/assets/dab44012-3ff8-41c2-96b6-854710664942
+
+
 
 Built with ❤️ using [Expo](https://expo.dev)
