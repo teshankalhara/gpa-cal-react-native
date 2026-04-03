@@ -118,8 +118,4 @@ Preview
 ![IMG_7697 JPG](https://github.com/user-attachments/assets/af3c2e21-af7f-4f75-bb63-6a62d1199a02)
 
 
-https://github.com/user-attachments/assets/dab44012-3ff8-41c2-96b6-854710664942
-
-
-
 Built with ❤️ using [Expo](https://expo.dev)
